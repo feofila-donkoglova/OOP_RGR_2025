@@ -1,4 +1,4 @@
-package library;
+package library.model;
 
 public class Book {
     private String title;
@@ -18,7 +18,7 @@ public class Book {
 // geuuers and setters
 
     public boolean isAvailable() {
-        return available;
+        return this.available;
     }
 
     public String getTitle() {
@@ -56,5 +56,8 @@ public class Book {
     }
     public void displayInfo() {
         System.out.println(title + " — " + author + " (" + year + ")");
+    }
+
+    public void setAvailable(boolean b) {
     }
 }

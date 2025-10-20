@@ -1,4 +1,7 @@
-package library;
+package library.Users;
+
+import library.model.Book;
+import library.model.Library;
 
 public class Librarian extends User {
     public Librarian(String username, String password) {

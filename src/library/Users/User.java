@@ -1,4 +1,4 @@
-package library;
+package library.Users;
 
 public class User {
     private final String username;
