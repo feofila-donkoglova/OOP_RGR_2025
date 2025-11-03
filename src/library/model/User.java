@@ -1,4 +1,4 @@
-package library.Users;
+package library.model;
 
 public class User {
     private final String username;

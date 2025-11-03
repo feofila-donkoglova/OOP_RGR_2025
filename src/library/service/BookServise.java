@@ -1,12 +1,11 @@
-package library.Users;
+package library.service;
 
 import library.model.Book;
 import library.model.Library;
+import library.model.User;
 
-public class Librarian extends User {
-    public Librarian(String username, String password) {
-        super(username, password);
-    }
+public class BookServise {
+
     public void addBook(Library library, Book book) {
         library.addBook(book);
         System.out.println(getUsername() + " додав(ла) книгу: " + book.getTitle());

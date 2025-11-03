@@ -1,9 +1,9 @@
 package library.model;
 
-import library.Users.User;
-
 import java.util.ArrayList;
 import java.util.List;
+
+// GRASP Information Expert
 
 public class Library {
     private List <Book> books;
@@ -13,6 +13,7 @@ public class Library {
         this.users = new ArrayList<>();
     }
     public void addBook(Book book) {
+        // GRASP creator
         books.add(book);
         System.out.println("Додано книгу: " + book.getTitle());
 
@@ -35,6 +36,7 @@ public class Library {
     }
 
     public Book findBookByTitle(String title) {
+        // GRY  (findBookByTitle логіка не дуюблюється у borrowBook
         for (Book book : books) {
             if (book.getTitle().equalsIgnoreCase(title)) {
                 return book;
