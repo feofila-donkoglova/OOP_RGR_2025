@@ -21,6 +21,16 @@ public class Book {
         return this.available;
     }
 
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Book book = (Book) obj;
+        return title.equals(book.title) && author.equals(book.author);
+    }
+    public int hashCode() {
+        return (title + author).hashCode();
+    }
+
     public String getTitle() {
         return title;
     }
@@ -60,4 +70,5 @@ public class Book {
 
     public void setAvailable(boolean b) {
     }
+
 }

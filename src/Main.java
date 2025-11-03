@@ -1,7 +1,7 @@
 import library.model.Book;
 import library.model.Library;
-import library.Users.Reader;
-import library.service.BookServise;
+import library.model.Reader;
+import library.service.BookServiсe;
 import library.service.BorrowService;
 
 import java.util.Scanner;
@@ -11,9 +11,9 @@ public class Main {
 
 
         Library libraryObject = new Library();
-        BookServise headBookServise = new BookServise("Оксана", "secure_password");
+        BookServiсe headBookServiсe = new BookServiсe("Оксана", "secure_password");
         BorrowService borrowService = new BorrowService();
-        BookServise bookServise = new BookServise("Оксана", "l;kmnjbhvgc");
+        BookServiсe bookServiсe = new BookServiсe("Оксана", "l;kmnjbhvgc");
         Reader reader = new Reader("jkbhvc67", "Eva");
 
         Book book1 = new Book("Володар Перснів", "Дж.Р.Р. Толкін", 1954, 1178);

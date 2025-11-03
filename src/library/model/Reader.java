@@ -1,8 +1,4 @@
-package library.Users;
-
-import library.model.Book;
-import library.model.Library;
-import library.model.User;
+package library.model;
 
 public class Reader extends User {
     private int booksBorrowed;

@@ -52,13 +52,8 @@ public class Library {
             System.out.println("   Доступна: " + book.isAvailable());
         }
     }
-    public void borrowBook(Book book, User user) {
-        book.borrowBook();
-        System.out.println("Користувачка " + user.getUsername() + " позичила книгу " + book.getTitle());
-    }
-    public void returnBook(Book book, User user) {
-        book.returnBook();
-        System.out.println("Користувачка " + user.getUsername() + " повернула книгу " + book.getTitle());
+    public List<Book> getBooks() {
+        return books;
     }
 }
 
