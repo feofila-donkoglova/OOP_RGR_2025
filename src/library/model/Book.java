@@ -21,6 +21,7 @@ public class Book {
     public void borrowBook() { state.borrow(this); }
     public void returnBook() { state.returnBook(this); }
     public void reserveBook() { state.reserve(this); }
+    public boolean isAvailable() { return state  instanceof AvailableState; }
 
     public void setState(BookState state) { this.state = state; }
     public String getStateName() { return state.getStateName(); }
@@ -47,6 +48,10 @@ public class Book {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public void reserve(Book book) {
+        System.out.println("Не можна зарезервувати книгу '" + book.getTitle() + "', вона вже позичена.");
     }
 
 }

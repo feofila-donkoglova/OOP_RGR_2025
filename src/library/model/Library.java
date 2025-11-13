@@ -2,7 +2,7 @@ package library.model;
 
 import library.notification.*;
 import library.repository.BookRepository;
-
+import library.state.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,17 @@ public class Library extends Publisher {
         bookRepository.addBook(book);
         System.out.println("Додано книгу: " + book.getTitle());
         notifySubscribers(EventType.NEW_BOOK, "Додано нову книгу: " + book.getTitle());
+    }
+
+    public void borrowBook(Book book) {
+        if (book != null && book.isAvailable()) {
+            book.returnBook();
+            notifySubscribers(EventType.BOOK_RETURNED, "Книгу '" + book.getTitle() + "' повернуто.");
+        }
+    }
+
+    public void reserve(Book book) {
+        System.out.println("Книга '" + book.getTitle() + "' вже зарезервована.");
     }
 
     public void announceEvent(String event, EventType eventType) {
@@ -60,4 +71,6 @@ public class Library extends Publisher {
 
     public void removeBook(Book book) {
     }
+
+
 }
