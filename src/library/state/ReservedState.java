@@ -16,6 +16,4 @@ public class ReservedState implements BookState {
     public String getStateName() {
         return "Reserved";
     }
-
-
 }

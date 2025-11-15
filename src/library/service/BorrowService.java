@@ -1,43 +1,64 @@
-package library.service ;
+package library.service;
 
+import library.exceptions.BookUnavailableException;
+import library.exceptions.MaxLoanLimitExceededException;
 import library.model.Reader;
 import library.model.Book;
 import library.model.BorrowRecord;
+import library.dao.BorrowRecordDao;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class BorrowService {
 
-    private List<BorrowRecord> borrowRecords = new ArrayList<>();
+    private final BorrowRecordDao borrowRecordDao;
 
-    public void borrowBook(Book book, Reader reader) {
-        book.setAvailable(false);
-        borrowRecords.add(new BorrowRecord(reader, book, LocalDate.now(), null, 1));
+    public BorrowService(BorrowRecordDao borrowRecordDao) {
+        this.borrowRecordDao = borrowRecordDao;
+    }
+
+    public BorrowService() {
+        this.borrowRecordDao = BorrowRecordDao.getInstance();
+    }
+
+    private static final int MAX_LOANS = 5;
+
+    public void borrowBook(Book book, Reader reader)
+            throws BookUnavailableException, MaxLoanLimitExceededException {
+        borrowBook(book, reader, 14);
+    }
+
+    public void borrowBook(Book book, Reader reader, int daysNumber)
+            throws BookUnavailableException, MaxLoanLimitExceededException {
+
+        if (borrowRecordDao.countBorrowedBooksByReader(reader) >= MAX_LOANS) {
+            throw new MaxLoanLimitExceededException(reader.getUsername(), MAX_LOANS);
+        }
+
+        if (!borrowRecordDao.isAvailable(book)) {
+            throw new BookUnavailableException(book.getTitle());
+        }
+
+        borrowRecordDao.createBorrowRecord(reader, book, daysNumber);
+        reader.incrementBooksBorrowed();
         System.out.println(reader.getUsername() + " позичив книгу: " + book.getTitle());
     }
 
+
     public void returnBook(Book book, Reader reader) {
-        for (BorrowRecord record : borrowRecords) {
-            if (record.getReader().equals(reader) &&
-            record.getBook().equals(book) &&
-            !record.isReturned()){
-                record.returnBook();
-                book.setAvailable(true);
-                System.out.println(reader.getUsername() + " успішно повернув книгу: " + book.getTitle());
-                return;
-            }
+        BorrowRecord record = borrowRecordDao.findNonReturnedRecord(reader, book);
+        if (record != null) {
+            record.returnBook();
+            reader.decrementBooksBorrowed();
+            System.out.println(reader.getUsername() + " успішно повернув книгу: " + book.getTitle());
+        } else {
+            System.out.println("Помилка: Активний запис про позику не знайдено.");
         }
-        System.out.println("Помилка: Активний запис про позику не знайдено.");
     }
+
 
     public void showBorrowHistory() {
         System.out.println("\n=== ІСТОРІЯ ПОЗИЧЕНЬ ===");
-        for (BorrowRecord record : borrowRecords) {
-            record.showRecord();
-        }
-
+        borrowRecordDao.getAllRecords().forEach(BorrowRecord::showRecord);
     }
 }

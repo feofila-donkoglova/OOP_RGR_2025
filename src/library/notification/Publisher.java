@@ -2,6 +2,7 @@ package library.notification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Publisher {
     private List<Subscriber> subscribers = new ArrayList<>();
@@ -18,7 +19,8 @@ public class Publisher {
 
     public void notifySubscribers(EventType eventType, String message) {
         for (Subscriber subscriber : subscribers) {
-            if (subscriber.getSubscribedEvents().contains(eventType)) {
+            Set<EventType> subs = subscriber.getSubscribedEvents();
+            if (subs != null && subs.contains(eventType)) {
                 subscriber.update(eventType, message);
             }
         }

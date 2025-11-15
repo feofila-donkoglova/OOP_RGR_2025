@@ -1,14 +1,11 @@
 package library.model;
 
-import library.notification.EventType;
 import library.notification.Subscriber;
-
-import java.util.Set;
 
 public class Reader extends User implements Subscriber {
     private int booksBorrowed;
 
-    public Reader(String password, String username) {
+    public Reader(String username, String password) {
         super(username, password);
         this.booksBorrowed = 0;
 

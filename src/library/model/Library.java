@@ -1,8 +1,10 @@
 package library.model;
 
-import library.notification.*;
+import library.exceptions.UserNotFoundException;
+import library.notification.EventType;
+import library.notification.Publisher;
 import library.repository.BookRepository;
-import library.state.*;
+import library.service.BorrowService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +13,16 @@ public class Library extends Publisher {
     private static Library instance;
     private BookRepository bookRepository;
     private List<User> users;
+    private BorrowService borrowService; // сервіс для позик
 
     private Library() {
         this.bookRepository = new BookRepository();
         this.users = new ArrayList<>();
+        this.borrowService = new BorrowService(); // створюємо сервіс
     }
 
     public static Library getInstance() {
-        if (instance == null) {
-            instance = new Library();
-        }
+        if (instance == null) instance = new Library();
         return instance;
     }
 
@@ -30,15 +32,23 @@ public class Library extends Publisher {
         notifySubscribers(EventType.NEW_BOOK, "Додано нову книгу: " + book.getTitle());
     }
 
-    public void borrowBook(Book book) {
-        if (book != null && book.isAvailable()) {
-            book.returnBook();
-            notifySubscribers(EventType.BOOK_RETURNED, "Книгу '" + book.getTitle() + "' повернуто.");
+    // Делегуємо логіку позики до BorrowService
+    public void borrowBook(Book book, Reader reader) {
+        try {
+            borrowService.borrowBook(book, reader);
+            notifySubscribers(EventType.BOOK_BORROWED, "Книгу '" + book.getTitle() + "' позичено.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
+    public void returnBook(Book book, Reader reader) {
+        borrowService.returnBook(book, reader);
+        notifySubscribers(EventType.BOOK_RETURNED, "Книгу '" + book.getTitle() + "' повернуто.");
+    }
+
     public void reserve(Book book) {
-        System.out.println("Книга '" + book.getTitle() + "' вже зарезервована.");
+        System.out.println("Метод reserve ще не реалізовано. Резервування можна додати через BorrowService або BookState.");
     }
 
     public void announceEvent(String event, EventType eventType) {
@@ -57,11 +67,8 @@ public class Library extends Publisher {
     public List<User> getUsers() {
         return users;
     }
-    public List<Book> getBooks() {
-        return books();
-    }
 
-    private List<Book> books() {
+    public List<Book> getBooks() {
         return bookRepository.getAllBooks();
     }
 
@@ -70,7 +77,14 @@ public class Library extends Publisher {
     }
 
     public void removeBook(Book book) {
+        bookRepository.removeBook(book);
+        System.out.println("Видалено книгу: " + book.getTitle());
     }
 
-
+    public User findUser(String username) throws UserNotFoundException {
+        return users.stream()
+                .filter(u -> u.getUsername().equals(username))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException(username));
+    }
 }

@@ -7,7 +7,6 @@ public class BorrowRecord {
     private Book book;
     private LocalDate borrowDate;
     private LocalDate returnDate;
-    private LocalDate dueDate;
     private int daysNumber;
 
     public BorrowRecord(Reader reader, Book book, LocalDate borrowDate, LocalDate returnDate, int daysNumber) {

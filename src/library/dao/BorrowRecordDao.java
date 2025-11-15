@@ -4,12 +4,24 @@ import library.model.Reader;
 import library.model.Book;
 import library.model.BorrowRecord;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BorrowRecordDao {
 
-    private List<BorrowRecord> records = new ArrayList<>();
+    private static BorrowRecordDao instance;
+    private final List<BorrowRecord> records = new ArrayList<>();
+
+    private BorrowRecordDao() {}
+
+    public static BorrowRecordDao getInstance() {
+        if (instance == null) {
+            instance = new BorrowRecordDao();
+        }
+        return instance;
+    }
 
     public List<BorrowRecord> getAllRecords() {
         return records;
@@ -17,13 +29,12 @@ public class BorrowRecordDao {
 
     // створюємо новий запис про позику
     public void createBorrowRecord(Reader reader, Book book, int daysNumber) {
-        BorrowRecord record = new BorrowRecord(reader, book);
-        // тут можна додати логіку по daysNumber, якщо треба
+        BorrowRecord record = new BorrowRecord(reader, book, LocalDate.now(), null, daysNumber);
         records.add(record);
         System.out.println("Створено запис про позику: " + book.getTitle() + " для " + reader.getUsername());
     }
 
-    // перевіряємо чи доступна книга
+    // перевіряємо чи доступна книга (тобто немає активного запису)
     public boolean isAvailable(Book book) {
         for (BorrowRecord record : records) {
             if (record.getBook().equals(book) && !record.isReturned()) {
@@ -35,16 +46,12 @@ public class BorrowRecordDao {
 
     // отримати записи, де книга ще не повернена
     public List<BorrowRecord> getNonReturnedRecords() {
-        List<BorrowRecord> nonReturned = new ArrayList<>();
-        for (BorrowRecord record : records) {
-            if (record.isReturned()) {
-                nonReturned.add(record);
-            }
-        }
-        return nonReturned;
+        return records.stream()
+                .filter(r -> !r.isReturned())
+                .collect(Collectors.toList());
     }
 
-    //Повертає запис про конкретну позику книги користувачем
+    // Повертає запис про конкретну позику книги користувачем (активний)
     public BorrowRecord findNonReturnedRecord(Reader reader, Book book) {
         return getNonReturnedRecords().stream()
                 .filter(r -> r.getBook().equals(book) && r.getReader().equals(reader))
@@ -52,9 +59,8 @@ public class BorrowRecordDao {
                 .orElse(null);
     }
 
-
-    //скільки книг користувач не повернув
-    public int countBorrowedRecordsByReader(Reader reader) {
+    //скільки книг користувач зараз не повернув
+    public int countBorrowedBooksByReader(Reader reader) {
         int count = 0;
         for (BorrowRecord record : records) {
             if (record.getReader().equals(reader) && !record.isReturned()) {
@@ -64,17 +70,4 @@ public class BorrowRecordDao {
         return count;
     }
 
-    public Book getBook() {
-        return null;
-    }
-
-    public int countBorrowedBooksByReader(Reader reader) {
-        int count = 0;
-        for (BorrowRecord record : records) {
-            if (record.getBook().equals(reader) && !record.isReturned()) {
-                count++;
-            }
-        }
-        return count;
-    }
 }
