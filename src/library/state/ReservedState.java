@@ -1,16 +1,18 @@
 package library.state;
 
 import library.model.Book;
+import library.model.Reader;
+import library.dao.BorrowRecordDao;
 
 public class ReservedState implements BookState {
-    public void borrow(Book book) {
+    public void borrow(Book book, Reader reader, BorrowRecordDao dao) {
         System.out.println("Книга '" + book.getTitle() + "' зарезервована, не можна взяти.");
     }
-    public void returnBook(Book book) {
+    public void returnBook(Book book, Reader reader, BorrowRecordDao dao) {
         System.out.println("Книга '" + book.getTitle() + "' повернена та стала доступною.");
         book.setState(new AvailableState());
     }
-    public void reserve(Book book) {
+    public void reserve(Book book,  Reader reader, BorrowRecordDao dao) {
         System.out.println("Книга '" + book.getTitle() + "' вже зарезервована.");
     }
     public String getStateName() {

@@ -1,19 +1,19 @@
 package library.model;
 
+import library.dao.BorrowRecordDao;
 import library.state.BookState;
 import library.state.AvailableState;
 
 public class Book implements BookInterface{
 
-    private boolean rare;
-    private String title;
-    private String author;
-    private String genre;
-    private int pageCount;
-    private int year;
-    private String bookId;
-    private boolean available; // доступність книги
-    private BookState state;   // поточний стан книги (State pattern)
+    private final boolean rare;
+    private final String title;
+    private final String author;
+    private final String genre;
+    private final int pageCount;
+    private final int year;
+    private final String bookId;
+    private BookState state;
 
     //КОНСТРУКТОР
     protected Book(BookBuilder builder) {
@@ -23,7 +23,7 @@ public class Book implements BookInterface{
         this.pageCount = builder.pageCount;
         this.year = builder.year;
         this.bookId = builder.bookId;
-        this.available = true;
+        this.rare = builder.rare;
         this.state = new AvailableState();
     }
 
@@ -35,37 +35,32 @@ public class Book implements BookInterface{
     public int getPageCount() { return pageCount; }
     public int getYear() { return year; }
     public String getBookId() { return bookId; }
-    public boolean isAvailable() { return available; }
+    public boolean isRare() { return rare; }
     public BookState getState() { return state; }
+
     @Override
     public boolean isAvailableForBorrow() {
-        return available && !rare;
+        return (state instanceof AvailableState) && !rare;
     }
-    public boolean isRare() { return rare; }
 
     //  SETTERS
-    public void setTitle(String title) { this.title = title; }
-    public void setAuthor(String author) { this.author = author; }
-    public void setGenre(String genre) { this.genre = genre; }
-    public void setPageCount(int pageCount) { this.pageCount = pageCount; }
-    public void setYear(int year) { this.year = year; }
-    public void setBookId(String bookId) { this.bookId = bookId; }
     public void setState(BookState state) { this.state = state; }
-    public void setRare(boolean rare) { this.rare = rare; }
+
 
     //  МЕТОДИ ДЛЯ ПОЗИКИ
-    public void borrow() {
-        available = false;
-        state.borrow(this);
+    public void borrow(Reader reader, BorrowRecordDao dao) {
+        state.borrow(this, reader, dao);
     }
-    public void returnBook() {
-        available = true;
-        state.returnBook(this);
+    public void returnBook(Reader reader, BorrowRecordDao dao) {
+        state.returnBook(this, reader, dao);
     }
-    public void reserve() {
-        state.reserve(this);
+    public void reserve(Reader reader, BorrowRecordDao dao) {
+        state.reserve(this,  reader, dao);
     }
 
+    public boolean isAvailable() {
+        return state instanceof AvailableState;
+    }
 
     public void displayInfo() {
         System.out.println("=== Книга ===");
@@ -74,7 +69,7 @@ public class Book implements BookInterface{
         System.out.println("Жанр: " + genre);
         System.out.println("Сторінки: " + pageCount);
         System.out.println("Рік: " + year);
-        System.out.println("Доступність: " + (available ? "Так" : "Ні"));
+        System.out.println("Доступність: " + (isAvailableForBorrow() ? "Так" : "Ні"));
         System.out.println("Стан: " + state.getStateName());
         System.out.println("================");
     }
@@ -87,6 +82,7 @@ public class Book implements BookInterface{
         private int pageCount;
         private int year;
         private String bookId;
+        private boolean rare = false;
 
         public T setTitle(String title) { this.title = title; return (T) this; }
         public T setAuthor(String author) { this.author = author; return (T) this; }
@@ -94,6 +90,7 @@ public class Book implements BookInterface{
         public T setPageCount(int pageCount) { this.pageCount = pageCount; return (T) this; }
         public T setYear(int year) { this.year = year; return (T) this; }
         public T setBookId(String bookId) { this.bookId = bookId; return (T) this; }
+        public T setRare(boolean rare) { this.rare = rare; return (T) this; }
 
         public Book build() {
             return new Book(this);

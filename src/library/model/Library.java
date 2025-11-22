@@ -5,6 +5,8 @@ import library.notification.EventType;
 import library.notification.Publisher;
 import library.repository.BookRepository;
 import library.service.BorrowService;
+import library.exceptions.BookUnavailableException;
+import library.exceptions.MaxLoanLimitExceededException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +35,10 @@ public class Library extends Publisher {
     }
 
     // Делегуємо логіку позики до BorrowService
-    public void borrowBook(Book book, Reader reader) {
-        try {
-            borrowService.borrowBook(book, reader);
-            notifySubscribers(EventType.BOOK_BORROWED, "Книгу '" + book.getTitle() + "' позичено.");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    public void borrowBook(Book book, Reader reader)
+            throws BookUnavailableException, MaxLoanLimitExceededException{
+        borrowService.borrowBook(book, reader);
+        notifySubscribers(EventType.BOOK_BORROWED, "Книгу '" + book.getTitle() + "' позичено.");
     }
 
     public void returnBook(Book book, Reader reader) {

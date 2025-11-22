@@ -34,16 +34,6 @@ public class BorrowRecordDao {
         System.out.println("Створено запис про позику: " + book.getTitle() + " для " + reader.getUsername());
     }
 
-    // перевіряємо чи доступна книга (тобто немає активного запису)
-    public boolean isAvailable(Book book) {
-        for (BorrowRecord record : records) {
-            if (record.getBook().equals(book) && !record.isReturned()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     // отримати записи, де книга ще не повернена
     public List<BorrowRecord> getNonReturnedRecords() {
         return records.stream()

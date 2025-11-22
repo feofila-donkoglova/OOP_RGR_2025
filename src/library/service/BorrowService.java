@@ -35,12 +35,11 @@ public class BorrowService {
             throw new MaxLoanLimitExceededException(reader.getUsername(), MAX_LOANS);
         }
 
-        if (!borrowRecordDao.isAvailable(book)) {
+        if (!book.isAvailableForBorrow()) {
             throw new BookUnavailableException(book.getTitle());
         }
 
-        borrowRecordDao.createBorrowRecord(reader, book, daysNumber);
-        reader.incrementBooksBorrowed();
+        book.borrow(reader, borrowRecordDao);
         System.out.println(reader.getUsername() + " позичив книгу: " + book.getTitle());
     }
 
@@ -48,8 +47,7 @@ public class BorrowService {
     public void returnBook(Book book, Reader reader) {
         BorrowRecord record = borrowRecordDao.findNonReturnedRecord(reader, book);
         if (record != null) {
-            record.returnBook();
-            reader.decrementBooksBorrowed();
+            book.returnBook(reader, borrowRecordDao);
             System.out.println(reader.getUsername() + " успішно повернув книгу: " + book.getTitle());
         } else {
             System.out.println("Помилка: Активний запис про позику не знайдено.");

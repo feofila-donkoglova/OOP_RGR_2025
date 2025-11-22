@@ -12,7 +12,7 @@ public class BorrowRecord {
     public BorrowRecord(Reader reader, Book book, LocalDate borrowDate, LocalDate returnDate, int daysNumber) {
         this.reader = reader;
         this.book = book;
-        this.borrowDate = LocalDate.now();
+        this.borrowDate = borrowDate;
         this.returnDate = returnDate;
         this.daysNumber = daysNumber;
     }

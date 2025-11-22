@@ -1,3 +1,5 @@
+import library.exceptions.BookUnavailableException;
+import library.exceptions.MaxLoanLimitExceededException;
 import library.model.*;
 import library.notification.EventType;
 import library.strategy.*;
@@ -10,15 +12,14 @@ import java.util.Set;
 public class Main {
     public static void main(String[] args) {
 
-        // ===== 1️⃣ Library (Singleton) =====
+
         Library library = Library.getInstance();
 
-        // ===== 2️⃣ Додаємо книги =====
-        Book book1 = new Book("Володар Перснів", "Дж.Р.Р. Толкін", 1954, 1178);
-        Book book2 = new Book("Фауст", "Йоганн Вольфганг Гете", 1808, 624);
-        Book book3 = new Book("Тигролови", "Іван Багряний", 1944, 352);
-        Book book4 = new Book("Сто років самотності", "Габріель Гарсія Маркес", 1967, 432);
-        Book book5 = new Book("Гаррі Поттер і філософський камінь", "Джоан Роулінг", 1997, 320);
+        Book book1 = new Book.BookBuilder().setTitle("Володар Перснів").setAuthor("Дж.Р.Р. Толкін").setYear(1954).setPageCount(1178).build();
+        Book book2 = new Book.BookBuilder().setTitle("Фауст").setAuthor("Йоганн Вольфганг Гете").setYear(1808).setPageCount(624).build();
+        Book book3 = new Book.BookBuilder().setTitle("Тигролови").setAuthor("Іван Багряний").setYear(1944).setPageCount(352).build();
+        Book book4 = new Book.BookBuilder().setTitle("Сто років самотності").setAuthor("Габріель Гарсія Маркес").setYear(1967).setPageCount(432).build();
+        Book book5 = new Book.BookBuilder().setTitle("Гаррі Поттер і філософський камінь").setAuthor("Джоан Роулінг").setYear(1997).setPageCount(320).build();
 
         library.addBook(book1);
         library.addBook(book2);
@@ -26,21 +27,23 @@ public class Main {
         library.addBook(book4);
         library.addBook(book5);
 
-        // ===== 3️⃣ Користувачі + Advanced Observer =====
+
         Set<EventType> eventsEva = new HashSet<>();
         eventsEva.add(EventType.NEW_BOOK);
 
-        Reader readerEva = new Reader("lkgfr", "Eva");
+        Reader readerEva = new Reader("Eva", "lkgfr");
         library.registerUser(readerEva);
+        library.subscribe(readerEva);
 
         Set<EventType> eventsJohn = new HashSet<>();
         eventsJohn.add(EventType.NEW_BOOK);
         eventsJohn.add(EventType.PROMOTION);
 
-        Reader readerJohn = new Reader("rltkngl", "Ocsana");
+        Reader readerJohn = new Reader("John", "rltkngl");
         library.registerUser(readerJohn);
+        library.subscribe(readerJohn);
 
-        // ===== 4️⃣ Strategy (пошук) =====
+        // Strategy
         SearchService searchService = new SearchService(new SearchByTitle());
         System.out.println("\n=== Пошук по назві: 'Гаррі' ===");
         List<Book> results = searchService.search(library.getBooks(), "Гаррі");
@@ -56,9 +59,11 @@ public class Main {
         results = searchService.search(library.getBooks(), "1944");
         results.forEach(Book::displayInfo);
 
-        // ===== 5️⃣ Інтерактивне меню =====
+
         Scanner scanner = new Scanner(System.in);
         int choice;
+
+        Reader activeReader = readerJohn;
 
         do {
             System.out.println("\n=== МЕНЮ БІБЛІОТЕКИ ===");
@@ -68,7 +73,7 @@ public class Main {
             System.out.println("0. Вийти");
             System.out.print("Оберіть опцію: ");
             choice = scanner.nextInt();
-            scanner.nextLine(); // щоб уникнути пропуску рядка
+            scanner.nextLine();
 
             switch (choice) {
                 case 1 -> {
@@ -80,7 +85,13 @@ public class Main {
                     String title = scanner.nextLine();
                     Book book = library.getBookRepository().findByTitle(title);
                     if (book != null) {
-                        book.borrowBook(); // State Pattern керує станом
+                        try {
+                            library.borrowBook(book, activeReader);
+                        } catch (BookUnavailableException | MaxLoanLimitExceededException e) {
+                            System.out.println("Помилка позики: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.out.println("Невідома помилка: " + e.getMessage());
+                        }
                     } else {
                         System.out.println("Книга не знайдена.");
                     }
@@ -90,7 +101,7 @@ public class Main {
                     String title = scanner.nextLine();
                     Book book = library.getBookRepository().findByTitle(title);
                     if (book != null) {
-                        book.returnBook(); // State Pattern
+                        library.returnBook(book, activeReader); // State Pattern
                     } else {
                         System.out.println("Книга не знайдена.");
                     }
