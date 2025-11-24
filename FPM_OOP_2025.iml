@@ -10,5 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="TEST" name="junit.jupiter.api" level="project" />
+    <orderEntry type="library" scope="TEST" name="mockito.core" level="project" />
   </component>
 </module>

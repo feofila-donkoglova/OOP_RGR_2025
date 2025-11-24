@@ -1,27 +1,40 @@
 package library.notification;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Publisher {
-    private List<Subscriber> subscribers = new ArrayList<>();
+    private final Map<EventType, List<Subscriber>> subscribers = new HashMap<>();
 
-    public void subscribe(Subscriber subscriber) {
-        if (!subscribers.contains(subscriber)) {
-            subscribers.add(subscriber);
+    public Publisher() {
+        for (EventType type : EventType.values()) {
+            subscribers.put(type, new ArrayList<>());
         }
     }
 
-    public void unsubscribe(Subscriber subscriber) {
-        subscribers.remove(subscriber);
+    public void subscribe(EventType eventType, Subscriber subscriber) {
+        List<Subscriber> eventSubscribers = subscribers.get(eventType);
+        if (eventSubscribers != null && !eventSubscribers.contains(subscriber)) {
+            eventSubscribers.add(subscriber);
+            System.out.println(subscriber.getClass().getSimpleName() +
+                    " підписано на " + eventType);
+        }
     }
 
+    public void unsubscribe(EventType eventType, Subscriber subscriber) {
+        List<Subscriber> eventSubscribers = subscribers.get(eventType);
+        if (eventSubscribers != null) {
+            eventSubscribers.remove(subscriber);
+            System.out.println(subscriber.getClass().getSimpleName() +
+                    " відписано від " + eventType);
+        }
+    }
     public void notifySubscribers(EventType eventType, String message) {
-        for (Subscriber subscriber : subscribers) {
-            Set<EventType> subs = subscriber.getSubscribedEvents();
-            if (subs != null && subs.contains(eventType)) {
-                subscriber.update(eventType, message);
+        System.out.println("\nPUBLISH: Подія [" + eventType + "] з даними: " + message);
+        List<Subscriber> eventSubscribers = subscribers.get(eventType);
+
+        if (eventSubscribers != null) {
+            for (Subscriber subscriber : eventSubscribers) {
+                 subscriber.update(eventType, message);
             }
         }
     }
