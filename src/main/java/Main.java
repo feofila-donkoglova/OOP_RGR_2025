@@ -33,7 +33,6 @@ public class Main {
 
         Reader readerEva = new Reader("Eva", "lkgfr");
         library.registerUser(readerEva);
-        library.subscribe(readerEva);
 
         Set<EventType> eventsJohn = new HashSet<>();
         eventsJohn.add(EventType.NEW_BOOK);
@@ -41,7 +40,12 @@ public class Main {
 
         Reader readerJohn = new Reader("John", "rltkngl");
         library.registerUser(readerJohn);
-        library.subscribe(readerJohn);
+
+        readerEva.subscribe(EventType.NEW_BOOK);
+        readerEva.subscribe(EventType.BOOK_BORROWED);
+
+        readerJohn.subscribe(EventType.NEW_BOOK);
+        readerJohn.subscribe(EventType.BOOK_RETURNED);
 
         // Strategy
         SearchService searchService = new SearchService(new SearchByTitle());
